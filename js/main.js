@@ -1,9 +1,24 @@
 import { World, System, Component, TagComponent, Types } from 'https://ecsy.io/build/ecsy.module.js';
 
-const NUM_ELEMENTS = 600;
+const NUM_ELEMENTS = 40;
 const SPEED_MULTIPLIER = 0.1;
 const SHAPE_SIZE = 20;
 const SHAPE_HALF_SIZE = SHAPE_SIZE / 2;
+let SHAPE_RANDOM_SIZE = (SHAPE_HALF_SIZE - 5) * Math.random();
+const RANDOM_TIME = Math.random() * 10;
+
+let mousePos = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+}
+
+// get mouse coordinates
+document.onmousemove = (e) => {
+    mousePos = {
+        x: e.pageX,
+        y: e.pageY
+    }
+}
       
 // Initialize canvas
 let canvas = document.querySelector("canvas");
@@ -104,7 +119,7 @@ class RendererSystem extends System {
             ctx.beginPath();
             ctx.arc(position.x,
                     position.y,
-                    SHAPE_HALF_SIZE,
+                    SHAPE_RANDOM_SIZE,
                     0,
                     2 * Math.PI,
                     false);
@@ -116,10 +131,10 @@ class RendererSystem extends System {
         
         drawBox(position) {
             ctx.beginPath();
-            ctx.rect(position.x - SHAPE_HALF_SIZE,
-                    position.y - SHAPE_HALF_SIZE,
-                    SHAPE_SIZE,
-                    SHAPE_SIZE);
+            ctx.rect(position.x,// - SHAPE_RANDOM_SIZE,
+                    position.y,// - SHAPE_RANDOM_SIZE,
+                    SHAPE_RANDOM_SIZE,
+                    SHAPE_RANDOM_SIZE);
             ctx.fillStyle= "#f28d89";
             ctx.fill();
             ctx.lineWidth = 1;
@@ -151,10 +166,10 @@ class RendererSystem extends System {
         };
     }
       
-    let getRandomPosition = () => {
+    let getDrawPosition = () => {
         return { 
-          x: Math.random() * canvasWidth, 
-          y: Math.random() * canvasHeight
+          x: mousePos.x, // Math.random() * canvasWidth
+          y: mousePos.y  // Math.random() * canvasHeight
         };
     }
       
@@ -163,28 +178,33 @@ class RendererSystem extends System {
            primitive: Math.random() >= 0.5 ? 'circle' : 'box'
         };
     }
-      
+    canvas.addEventListener("click", () => {
+
     for (let i = 0; i < NUM_ELEMENTS; i++) {
-        world
-          .createEntity()
+        let entity = world.createEntity();
+        entity
           .addComponent(Velocity, getRandomVelocity())
           .addComponent(Shape, getRandomShape())
-          .addComponent(Position, getRandomPosition())
-          .addComponent(Renderable)        
+          .addComponent(Position, getDrawPosition())
+          .addComponent(Renderable);
+        
+        setTimeout(() => entity.removeComponent(Renderable), RANDOM_TIME*1000);
     }
+
+    }, false);
             
-    // Run!
-    let run = () => {
-        // Compute delta and elapsed time
-        let time = performance.now();
-        let delta = time - lastTime;
+// Run!
+let run = () => {
+    // Compute delta and elapsed time
+    let time = performance.now();
+    let delta = time - lastTime;
 
-        // Run all the systems
-        world.execute(delta, time);
+    // Run all the systems
+    world.execute(delta, time);    
 
-        lastTime = time;
-        requestAnimationFrame(run);
-    }
+    lastTime = time;
+    requestAnimationFrame(run);
+}
 
 let lastTime = performance.now();
 run();
