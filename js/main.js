@@ -4,12 +4,12 @@ const NUM_ELEMENTS = 40;
 const SPEED_MULTIPLIER = 0.1;
 const SHAPE_SIZE = 20;
 const SHAPE_HALF_SIZE = SHAPE_SIZE / 2;
-let SHAPE_RANDOM_SIZE = (SHAPE_HALF_SIZE - 5) * Math.random();
-const RANDOM_TIME = Math.random() * 10;
+const SHAPE_RANDOM_SIZE = SHAPE_HALF_SIZE - SHAPE_HALF_SIZE * Math.random();
+const RANDOM_TIME = 4;
 
 let mousePos = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
+    x: 0,
+    y: 0
 }
 
 // get mouse coordinates
@@ -107,19 +107,19 @@ class RendererSystem extends System {
             let shape = entity.getComponent(Shape);
             let position = entity.getComponent(Position);
             if (shape.primitive === 'box') {
-              this.drawBox(position);
+              this.drawBox(position, SHAPE_RANDOM_SIZE);
             } else {
-              this.drawCircle(position);
+              this.drawCircle(position, SHAPE_RANDOM_SIZE);
             }
           });
         }
         
-        drawCircle(position) {
+        drawCircle(position, size) {
             ctx.fillStyle = "#888";
             ctx.beginPath();
             ctx.arc(position.x,
                     position.y,
-                    SHAPE_RANDOM_SIZE,
+                    size,
                     0,
                     2 * Math.PI,
                     false);
@@ -129,12 +129,12 @@ class RendererSystem extends System {
             ctx.stroke();    
         }
         
-        drawBox(position) {
+        drawBox(position, size) {
             ctx.beginPath();
-            ctx.rect(position.x,// - SHAPE_RANDOM_SIZE,
-                    position.y,// - SHAPE_RANDOM_SIZE,
-                    SHAPE_RANDOM_SIZE,
-                    SHAPE_RANDOM_SIZE);
+            ctx.rect(position.x - size,
+                    position.y - size,
+                    size,
+                    size);
             ctx.fillStyle= "#f28d89";
             ctx.fill();
             ctx.lineWidth = 1;
@@ -182,13 +182,17 @@ class RendererSystem extends System {
 
     for (let i = 0; i < NUM_ELEMENTS; i++) {
         let entity = world.createEntity();
+
         entity
           .addComponent(Velocity, getRandomVelocity())
           .addComponent(Shape, getRandomShape())
           .addComponent(Position, getDrawPosition())
           .addComponent(Renderable);
         
-        setTimeout(() => entity.removeComponent(Renderable), RANDOM_TIME*1000);
+        // time to disappear
+        setTimeout(
+            () => entity.removeComponent(Renderable),
+            (RANDOM_TIME - RANDOM_TIME * Math.random()) * 1000);
     }
 
     }, false);
