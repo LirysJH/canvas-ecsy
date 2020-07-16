@@ -107,19 +107,21 @@ class RendererSystem extends System {
             let shape = entity.getComponent(Shape);
             let position = entity.getComponent(Position);
             if (shape.primitive === 'box') {
-              this.drawBox(position, SHAPE_RANDOM_SIZE);
+              this.drawBox(position);
             } else {
-              this.drawCircle(position, SHAPE_RANDOM_SIZE);
+              this.drawCircle(position);
             }
           });
         }
+
+        getRandom = (val) => Math.random() * val;
         
-        drawCircle(position, size) {
+        drawCircle = (position) => {
             ctx.fillStyle = "#888";
             ctx.beginPath();
             ctx.arc(position.x,
                     position.y,
-                    size,
+                    SHAPE_RANDOM_SIZE,
                     0,
                     2 * Math.PI,
                     false);
@@ -129,12 +131,12 @@ class RendererSystem extends System {
             ctx.stroke();    
         }
         
-        drawBox(position, size) {
+        drawBox = (position) => {
             ctx.beginPath();
-            ctx.rect(position.x - size,
-                    position.y - size,
-                    size,
-                    size);
+            ctx.rect(position.x - SHAPE_RANDOM_SIZE,
+                    position.y - SHAPE_RANDOM_SIZE,
+                    SHAPE_RANDOM_SIZE,
+                    SHAPE_RANDOM_SIZE);
             ctx.fillStyle= "#f28d89";
             ctx.fill();
             ctx.lineWidth = 1;
@@ -180,20 +182,20 @@ class RendererSystem extends System {
     }
     canvas.addEventListener("click", () => {
 
-    for (let i = 0; i < NUM_ELEMENTS; i++) {
-        let entity = world.createEntity();
+        for (let i = 0; i < NUM_ELEMENTS; i++) {
+            let entity = world.createEntity();
 
-        entity
-          .addComponent(Velocity, getRandomVelocity())
-          .addComponent(Shape, getRandomShape())
-          .addComponent(Position, getDrawPosition())
-          .addComponent(Renderable);
-        
-        // time to disappear
-        setTimeout(
-            () => entity.removeComponent(Renderable),
-            (RANDOM_TIME - RANDOM_TIME * Math.random()) * 1000);
-    }
+            entity
+            .addComponent(Velocity, getRandomVelocity())
+            .addComponent(Shape, getRandomShape())
+            .addComponent(Position, getDrawPosition())
+            .addComponent(Renderable);
+            
+            // time to disappear
+            setTimeout(
+                () => entity.removeComponent(Renderable),
+                (RANDOM_TIME - RANDOM_TIME * Math.random()) * 1000);
+        }
 
     }, false);
             
